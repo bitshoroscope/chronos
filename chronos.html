@@ -3,63 +3,113 @@
 <head>
 <meta charset="UTF-8">
 <title>Multi-Chronometer App</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
+  /* Global Styles */
   body {
     font-family: Arial, sans-serif;
     background-color: #fff;
-    margin: 20px;
+    margin: 10px;
+    padding: 0;
   }
+
+  h1 {
+    font-size: 1.5em; /* Adjusted font size */
+    text-align: center;
+  }
+
+  /* Add Chronometer Button */
   #addChronoBtn {
+    display: block;
+    margin: 0 auto 20px auto;
     padding: 10px 20px;
-    font-size: 16px;
+    font-size: 1em; /* Reduced font size */
     cursor: pointer;
     background-color: #007BFF;
     color: #fff;
     border: none;
     border-radius: 5px;
     transition: background-color 0.3s ease;
+    width: 90%;
+    max-width: 400px;
   }
+
   #addChronoBtn:hover {
     background-color: #0056b3;
   }
+
+  /* Delete All Chronos Button */
+  #deleteAllBtn {
+    display: block;
+    margin: 20px auto 0 auto;
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    background-color: #FF4136;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    width: 90%;
+    max-width: 400px;
+  }
+
+  #deleteAllBtn:hover {
+    background-color: #c23328;
+  }
+
+  /* Chronometer Styles */
   .chronometer {
     padding: 10px 0;
     margin: 0;
     display: flex;
     align-items: center;
+    flex-wrap: nowrap; /* Ensure items stay on one line */
     background-color: transparent;
     transition: background-color 0.3s ease;
   }
+
   .chronometer input[type="text"] {
-    font-size: 18px;
-    width: 150px;
+    font-size: 1em; /* Slightly reduced font size */
+    width: 80px; /* Reduced width */
     border: none;
     background: transparent;
     outline: none;
     color: #333;
+    margin-right: 5px; /* Reduced margin */
   }
+
   .time-display {
-    font-size: 24px;
-    margin: 0 20px;
+    font-size: 1em; /* Slightly reduced font size */
+    margin: 0 5px;
     flex-grow: 1;
     color: #333;
     font-variant-numeric: tabular-nums;
+    text-align: center; /* Center the time display */
+    min-width: 80px; /* Ensure minimum width */
   }
+
   .chronometer button {
     background: none;
     border: none;
     cursor: pointer;
     padding: 5px;
     outline: none;
-    margin-left: 10px;
+    margin: 0 2px; /* Reduced margin */
     transition: transform 0.2s ease;
+    font-size: 1.2em; /* Slightly reduced font size */
+    width: 30px; /* Set fixed width */
+    flex: 0 0 30px; /* Ensure buttons have fixed width */
   }
+
   .chronometer button:hover {
     transform: scale(1.1);
   }
+
   #chronometers {
     margin-top: 20px;
   }
+
 </style>
 </head>
 <body>
@@ -67,6 +117,7 @@
 <h1>Multi-Chronometer App</h1>
 <button id="addChronoBtn">Add New Chronometer</button>
 <div id="chronometers"></div>
+<button id="deleteAllBtn">Delete All Chronos</button>
 
 <script>
   var chronometerCount = 0;
@@ -77,9 +128,14 @@
   var lightestColor = { r: 0xcc, g: 0xf9, b: 0xff }; // #ccf9ff
   var darkestColor = { r: 0x00, g: 0x80, b: 0xbf }; // #0080bf
 
-  function addChronometer() {
+  // Load state from localStorage
+  window.onload = function() {
+    loadState();
+  }
+
+  function addChronometer(id, data) {
     chronometerCount++;
-    var chronoId = 'chrono' + chronometerCount;
+    var chronoId = id || 'chrono' + chronometerCount;
     var chronometerDiv = document.createElement('div');
     chronometerDiv.className = 'chronometer';
     chronometerDiv.id = chronoId;
@@ -93,7 +149,12 @@
 
     var input = document.createElement('input');
     input.type = 'text';
-    input.placeholder = 'Chronometer Name';
+    input.placeholder = 'Name';
+    input.value = data && data.name ? data.name : '';
+    input.onchange = function() {
+      chronometers[chronoId].name = input.value;
+      saveState();
+    }
 
     var timeDisplay = document.createElement('div');
     timeDisplay.className = 'time-display';
@@ -110,11 +171,6 @@
     pauseBtn.title = 'Pause';
     pauseBtn.onclick = function() { pauseChrono(chronoId); };
 
-    var stopBtn = document.createElement('button');
-    stopBtn.innerHTML = '&#9724;'; // Stop icon
-    stopBtn.title = 'Stop';
-    stopBtn.onclick = function() { stopChrono(chronoId); };
-
     var resetBtn = document.createElement('button');
     resetBtn.innerHTML = '&#8635;'; // Reset icon
     resetBtn.title = 'Reset';
@@ -124,7 +180,6 @@
     chronometerDiv.appendChild(timeDisplay);
     chronometerDiv.appendChild(startBtn);
     chronometerDiv.appendChild(pauseBtn);
-    chronometerDiv.appendChild(stopBtn);
     chronometerDiv.appendChild(resetBtn);
 
     document.getElementById('chronometers').appendChild(chronometerDiv);
@@ -132,9 +187,22 @@
     chronometers[chronoId] = {
       intervalId: null,
       startTime: null,
-      elapsedTime: 0,
-      running: false,
+      elapsedTime: data && data.elapsedTime ? data.elapsedTime : 0,
+      running: data && data.running ? data.running : false,
+      name: data && data.name ? data.name : ''
     };
+
+    if (chronometers[chronoId].name) {
+      input.value = chronometers[chronoId].name;
+    }
+
+    if (chronometers[chronoId].elapsedTime) {
+      timeDisplay.textContent = formatTime(chronometers[chronoId].elapsedTime);
+    }
+
+    if (chronometers[chronoId].running) {
+      startChrono(chronoId);
+    }
   }
 
   function updateDisplay(chronoId) {
@@ -168,6 +236,7 @@
       updateDisplay(chronoId); // Update immediately
       chrono.intervalId = setInterval(function() { updateDisplay(chronoId); }, 50);
       chrono.running = true;
+      saveState();
     }
   }
 
@@ -177,21 +246,65 @@
       clearInterval(chrono.intervalId);
       chrono.elapsedTime += Date.now() - chrono.startTime;
       chrono.running = false;
+      saveState();
     }
   }
 
-  function stopChrono(chronoId) {
+  function resetChrono(chronoId) {
     pauseChrono(chronoId);
     chronometers[chronoId].elapsedTime = 0;
     document.querySelector('#' + chronoId + ' .time-display').textContent = '00:00:00.000';
+    saveState();
   }
 
-  function resetChrono(chronoId) {
-    stopChrono(chronoId);
-    startChrono(chronoId);
+  function saveState() {
+    var state = [];
+    for (var id in chronometers) {
+      var chrono = chronometers[id];
+      state.push({
+        id: id,
+        elapsedTime: chrono.elapsedTime,
+        running: chrono.running,
+        name: chrono.name
+      });
+    }
+    localStorage.setItem('chronometers', JSON.stringify(state));
   }
 
-  document.getElementById('addChronoBtn').addEventListener('click', addChronometer);
+  function loadState() {
+    var state = JSON.parse(localStorage.getItem('chronometers'));
+    if (state && state.length > 0) {
+      chronometerCount = 0;
+      for (var i = 0; i < state.length; i++) {
+        var data = state[i];
+        addChronometer(data.id, data);
+      }
+    }
+  }
+
+  function deleteAllChronos() {
+    if (confirm('Are you sure you want to delete all chronometers? This action cannot be undone.')) {
+      // Stop all running timers
+      for (var id in chronometers) {
+        var chrono = chronometers[id];
+        if (chrono.running) {
+          clearInterval(chrono.intervalId);
+        }
+      }
+      chronometers = {};
+      chronometerCount = 0;
+      document.getElementById('chronometers').innerHTML = '';
+      localStorage.removeItem('chronometers');
+    }
+  }
+
+  document.getElementById('addChronoBtn').addEventListener('click', function() {
+    addChronometer();
+    saveState();
+  });
+
+  document.getElementById('deleteAllBtn').addEventListener('click', deleteAllChronos);
+
 </script>
 
 </body>
