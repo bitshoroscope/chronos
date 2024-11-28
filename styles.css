@@ -1,0 +1,144 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f0f4f8;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Header Styles */
+  header {
+    background-color: #007BFF;
+    color: #fff;
+    padding: 40px 20px;
+    text-align: center;
+  }
+
+  header h1 {
+    font-size: 2.5em;
+    margin: 0;
+    font-weight: 700;
+  }
+
+  header h2 {
+    font-size: 1.2em;
+    margin: 10px 0 0 0;
+    font-weight: 300;
+  }
+
+  /* Main Content Styles */
+  main {
+    padding: 20px;
+  }
+
+  /* Add Activity Button */
+  #addChronoBtn {
+    display: block;
+    margin: 0 auto 20px auto;
+    padding: 15px 30px;
+    font-size: 1em;
+    cursor: pointer;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    transition: background-color 0.3s ease;
+    width: 80%;
+    max-width: 300px;
+  }
+
+  #addChronoBtn:hover {
+    background-color: #218838;
+  }
+
+  /* Chronometer Styles */
+  .chronometer {
+    background-color: #fff;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .chronometer input[type="text"] {
+    font-size: 1em;
+    width: 100px;
+    border: none;
+    border-bottom: 2px solid #ccc;
+    background: transparent;
+    outline: none;
+    color: #333;
+    margin-right: 15px;
+  }
+
+  .chronometer input[type="text"]::placeholder {
+    color: #aaa;
+  }
+
+  .time-display {
+    font-size: 1.2em;
+    margin-right: auto;
+    color: #333;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .chronometer button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px;
+    outline: none;
+    margin: 0 2px;
+    transition: transform 0.2s ease;
+    font-size: 1.5em;
+    color: #007BFF;
+  }
+
+  .chronometer button:hover {
+    transform: scale(1.1);
+  }
+
+  /* Total Time Styles */
+  #totalTime {
+    font-size: 1.2em;
+    margin: 20px 0;
+    text-align: center;
+    font-weight: bold;
+    color: #333;
+  }
+
+  /* Buttons Container */
+  #buttonsContainer {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0;
+  }
+
+  #deleteAllBtn, #generateGraphBtn {
+    padding: 15px 25px;
+    font-size: 1em;
+    cursor: pointer;
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    transition: background-color 0.3s ease;
+    margin: 0 15px;
+    width: auto;
+  }
+
+  #deleteAllBtn {
+    background-color: #dc3545;
+  }
+
+  #deleteAllBtn:hover {
+    background-color: #c82333;
+  }
+
+  #generateGraphBtn {
+    background-color: #17a2b8;
+  }
+
+  #generateGraphBtn:hover {
+    background-color: #138496;
+  }
