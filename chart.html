@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TimeWealth: See Where Your Time Goes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    /* Global Styles */
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Header Styles */
+    header {
+      background-color: #007BFF;
+      color: #fff;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2.5em;
+      margin: 0;
+      font-weight: 700;
+    }
+
+    header h2 {
+      font-size: 1.2em;
+      margin: 10px 0 0 0;
+      font-weight: 300;
+    }
+
+    /* Main Content Styles */
+    main {
+      padding: 20px;
+    }
+
+    /* Chart Styles */
+    #timeChart {
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* Additional Styles */
+    h2 {
+      font-size: 1.5em;
+      font-weight: 400;
+      color: #333;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>TimeWealth</h1>
+  <h2>See Where Your Time Goes</h2>
+</header>
+
+<main>
+  <h2>Time Distribution</h2>
+  <canvas id="timeChart"></canvas>
+</main>
+
+<!-- Include Chart.js via CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  // Function to format time
+  function formatTime(ms) {
+    var totalSeconds = Math.floor(ms / 1000);
+    var hrs = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+    var mins = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+    var secs = String(totalSeconds % 60).padStart(2, '0');
+    var millis = String(ms % 1000).padStart(3, '0');
+    return hrs + ':' + mins + ':' + secs + '.' + millis;
+  }
+
+  function generateColors(numColors) {
+    var colors = [];
+    for (var i = 0; i < numColors; i++) {
+      var hue = (i * 360 / numColors) % 360;
+      colors.push('hsl(' + hue + ', 70%, 50%)');
+    }
+    return colors;
+  }
+
+  // Listen for messages from the main window
+  window.addEventListener('message', function(event) {
+    var labels = event.data.labels;
+    var dataValues = event.data.dataValues;
+
+    var ctx = document.getElementById('timeChart').getContext('2d');
+    var chart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: dataValues,
+          backgroundColor: generateColors(dataValues.length)
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                var label = context.label || '';
+                var value = context.raw || 0;
+                var total = context.dataset.data.reduce(function(a, b) { return a + b; }, 0);
+                var percentage = ((value / total) * 100).toFixed(2) + '%';
+                var time = formatTime(value);
+                return label + ': ' + time + ' (' + percentage + ')';
+              }
+            }
+          }
+        }
+      }
+    });
+  }, false);
+</script>
+
+</body>
+</html>
